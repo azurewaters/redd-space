@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240px" height="240px" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>0CEF53F4-9EAC-4139-AAD6-F2BBF5150521</title>
+    <desc>Created with sketchtool.</desc>
+    <defs>
+        <path d="M512,221 C445.830588,221 392,274.830588 392,341 C392,407.169412 445.830588,461 512,461 C578.169412,461 632,407.169412 632,341 C632,274.830588 578.169412,221 512,221 Z M512,446.882353 C453.609412,446.882353 406.117647,399.390588 406.117647,341 C406.117647,282.609412 453.609412,235.117647 512,235.117647 C570.390588,235.117647 617.882353,282.609412 617.882353,341 C617.882353,399.390588 570.390588,446.882353 512,446.882353 Z M587.303529,348.058824 L587.303529,362.176471 L502.597647,362.176471 L502.597647,291.588235 L516.715294,291.588235 L516.715294,348.058824 L587.303529,348.058824 Z" id="path-1"></path>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-2">
+            <feGaussianBlur stdDeviation="1.5" in="SourceAlpha" result="shadowBlurInner1"></feGaussianBlur>
+            <feOffset dx="0" dy="1" in="shadowBlurInner1" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="FOR-V1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="01-01---Wait" transform="translate(-392.000000, -221.000000)">
+            <g id="WaitingWhite">
+                <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-1"></use>
+                <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+            </g>
+        </g>
+    </g>
+</svg>
