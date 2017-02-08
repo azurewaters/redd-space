@@ -6,7 +6,7 @@ window.riot.tag(
 
   `
   <div id="header">
-    <div id="leftBit"><span id="logo">SPACE</span><span id="tagline">SHARE FILES AT THE SPEED OF LIGHT</span></div>
+    <div id="leftBit"><span id="logo">SPACE [beta]</span><span id="tagline">SHARE FILES SIMPLY</span></div>
     <identityDisplay channel="{ opts.channel }" identity="{ opts.identity }"></identityDisplay>
   </div>
 
@@ -15,12 +15,12 @@ window.riot.tag(
 
     <div class="sign" if="{ (opts && opts.nodes && opts.nodes.length === 0 && !opts.wrongBrowser) }">
       <img class="signImage" src="images/waiting-white.svg">
-      <div class="signMessage">WAITING</div>
+      <div class="signMessage">WAITING FOR OTHER USERS</div>
     </div>
 
     <div class="sign" if="{ opts && opts.wrongBrowser }">
       <img class="signImage" src="images/wrong-red.svg">
-      <div class="signMessage">WRONG BROWSER</div>
+      <div class="signMessage">INCOMPATIBLE BROWSER</div>
     </div>
 
   </div>
@@ -34,7 +34,7 @@ window.riot.tag(
     <div id="transferFailedMessage" class="messageText" if="{ opts && opts.status === 5 }">THE TRANSFER TO ONE USER FAILED FOR SOME REASON. GO AHEAD AND GIVE IT ANOTHER SHOT.</div>
     <div id="wrongBrowserMessage" class="messageText" if="{ opts && opts.status === 6 }">FILE TRANSFER REQUIRES TECHNOLOGIES AVAILABLE ON CHROME, FIREFOX OR OPERA.</div>
 
-    <div id="credits"><a href="http://redd.in">DESIGNED BY REDD</a></div>
+    <div id="credits"><a href="http://redd.in" target="_blank">DESIGNED BY REDD</a></div>
   </div>
   `,
 
