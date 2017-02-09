@@ -6,7 +6,7 @@ window.riot.tag(
 
   `
   <div id="header">
-    <div id="leftBit"><span id="logo">SPACE [beta]</span><span id="tagline">SHARE FILES SIMPLY</span></div>
+    <div id="leftBit"><span id="logo">SPACE</span><span id="tagline">SHARE FILES SIMPLY [BETA]</span></div>
     <identityDisplay channel="{ opts.channel }" identity="{ opts.identity }"></identityDisplay>
   </div>
 
