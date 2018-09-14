@@ -17,8 +17,8 @@ System.config({
     "babel": "npm:babel-core@5.8.38",
     "babel-runtime": "npm:babel-runtime@5.8.38",
     "core-js": "npm:core-js@1.2.7",
-    "localforage": "npm:localforage@1.4.3",
-    "webtorrent": "npm:webtorrent@0.98.5",
+    "localforage": "npm:localforage@1.5.0",
+    "webtorrent": "npm:webtorrent@0.98.8",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.4.1"
     },
@@ -135,7 +135,7 @@ System.config({
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "buffer-equals": "npm:buffer-equals@1.0.4",
       "crypto": "github:jspm/nodelibs-crypto@0.1.0",
-      "debug": "npm:debug@2.6.0",
+      "debug": "npm:debug@2.6.1",
       "events": "github:jspm/nodelibs-events@0.1.1",
       "inherits": "npm:inherits@2.0.1",
       "k-bucket": "npm:k-bucket@3.2.1",
@@ -147,26 +147,27 @@ System.config({
     "npm:bittorrent-peerid@1.1.1": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0"
     },
-    "npm:bittorrent-protocol@2.1.7": {
+    "npm:bittorrent-protocol@2.2.0": {
       "bencode": "npm:bencode@0.11.0",
       "bitfield": "npm:bitfield@1.1.2",
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
-      "debug": "npm:debug@2.6.0",
+      "debug": "npm:debug@2.6.1",
       "inherits": "npm:inherits@2.0.1",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "randombytes": "npm:randombytes@2.0.3",
-      "readable-stream": "npm:readable-stream@2.2.2",
+      "readable-stream": "npm:readable-stream@2.2.3",
       "safe-buffer": "npm:safe-buffer@5.0.1",
       "speedometer": "npm:speedometer@1.0.0",
+      "unordered-array-remove": "npm:unordered-array-remove@1.0.2",
       "xtend": "npm:xtend@4.0.1"
     },
-    "npm:bittorrent-tracker@8.2.0": {
+    "npm:bittorrent-tracker@8.5.0": {
       "bencode": "npm:bencode@0.11.0",
       "bittorrent-peerid": "npm:bittorrent-peerid@1.1.1",
       "bn.js": "npm:bn.js@4.11.6",
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "compact2string": "npm:compact2string@1.4.0",
-      "debug": "npm:debug@2.6.0",
+      "debug": "npm:debug@2.6.1",
       "dgram": "github:jspm/nodelibs-dgram@0.1.0",
       "events": "github:jspm/nodelibs-events@0.1.1",
       "http": "github:jspm/nodelibs-http@1.7.1",
@@ -183,13 +184,14 @@ System.config({
       "run-series": "npm:run-series@1.1.4",
       "safe-buffer": "npm:safe-buffer@5.0.1",
       "simple-get": "npm:simple-get@2.4.0",
-      "simple-peer": "npm:simple-peer@6.2.1",
-      "simple-websocket": "npm:simple-websocket@4.2.0",
+      "simple-peer": "npm:simple-peer@6.4.3",
+      "simple-websocket": "npm:simple-websocket@4.3.1",
       "string2compact": "npm:string2compact@1.2.2",
       "systemjs-json": "github:systemjs/plugin-json@0.1.2",
       "uniq": "npm:uniq@1.0.1",
+      "unordered-array-remove": "npm:unordered-array-remove@1.0.2",
       "url": "github:jspm/nodelibs-url@0.1.0",
-      "ws": "npm:ws@1.1.1",
+      "ws": "npm:ws@1.1.2",
       "xtend": "npm:xtend@4.0.1"
     },
     "npm:blob-to-buffer@1.2.6": {
@@ -199,7 +201,7 @@ System.config({
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "defined": "npm:defined@1.0.0",
       "inherits": "npm:inherits@2.0.1",
-      "readable-stream": "npm:readable-stream@2.2.2"
+      "readable-stream": "npm:readable-stream@2.2.3"
     },
     "npm:bn.js@4.11.6": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0"
@@ -246,7 +248,7 @@ System.config({
       "create-hash": "npm:create-hash@1.1.2",
       "create-hmac": "npm:create-hmac@1.1.4",
       "crypto": "github:jspm/nodelibs-crypto@0.1.0",
-      "elliptic": "npm:elliptic@6.3.2",
+      "elliptic": "npm:elliptic@6.4.0",
       "inherits": "npm:inherits@2.0.1",
       "parse-asn1": "npm:parse-asn1@5.0.0",
       "stream": "github:jspm/nodelibs-stream@0.1.0"
@@ -256,7 +258,7 @@ System.config({
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "pako": "npm:pako@0.2.9",
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "readable-stream": "npm:readable-stream@2.2.2",
+      "readable-stream": "npm:readable-stream@2.2.3",
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
     "npm:buffer-equals@1.0.4": {
@@ -284,7 +286,7 @@ System.config({
     "npm:chunk-store-stream@2.0.2": {
       "block-stream2": "npm:block-stream2@1.1.0",
       "inherits": "npm:inherits@2.0.1",
-      "readable-stream": "npm:readable-stream@2.2.2"
+      "readable-stream": "npm:readable-stream@2.2.3"
     },
     "npm:cipher-base@1.0.3": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
@@ -313,7 +315,7 @@ System.config({
       "bn.js": "npm:bn.js@4.11.6",
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "crypto": "github:jspm/nodelibs-crypto@0.1.0",
-      "elliptic": "npm:elliptic@6.3.2"
+      "elliptic": "npm:elliptic@6.4.0"
     },
     "npm:create-hash@1.1.2": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
@@ -346,7 +348,7 @@ System.config({
       "path": "github:jspm/nodelibs-path@0.1.0",
       "piece-length": "npm:piece-length@1.0.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "readable-stream": "npm:readable-stream@2.2.2",
+      "readable-stream": "npm:readable-stream@2.2.3",
       "run-parallel": "npm:run-parallel@1.1.6",
       "simple-sha1": "npm:simple-sha1@2.1.0",
       "systemjs-json": "github:systemjs/plugin-json@0.1.2",
@@ -364,7 +366,7 @@ System.config({
       "public-encrypt": "npm:public-encrypt@4.0.0",
       "randombytes": "npm:randombytes@2.0.3"
     },
-    "npm:debug@2.6.0": {
+    "npm:debug@2.6.1": {
       "ms": "npm:ms@0.7.2"
     },
     "npm:des.js@1.0.0": {
@@ -380,11 +382,14 @@ System.config({
       "randombytes": "npm:randombytes@2.0.3",
       "systemjs-json": "github:systemjs/plugin-json@0.1.2"
     },
-    "npm:elliptic@6.3.2": {
+    "npm:elliptic@6.4.0": {
       "bn.js": "npm:bn.js@4.11.6",
-      "brorand": "npm:brorand@1.0.6",
+      "brorand": "npm:brorand@1.1.0",
       "hash.js": "npm:hash.js@1.0.3",
+      "hmac-drbg": "npm:hmac-drbg@1.0.0",
       "inherits": "npm:inherits@2.0.1",
+      "minimalistic-assert": "npm:minimalistic-assert@1.0.0",
+      "minimalistic-crypto-utils": "npm:minimalistic-crypto-utils@1.0.1",
       "systemjs-json": "github:systemjs/plugin-json@0.1.2"
     },
     "npm:end-of-stream@1.1.0": {
@@ -425,7 +430,7 @@ System.config({
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "inherits": "npm:inherits@2.0.1",
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "readable-stream": "npm:readable-stream@2.2.2",
+      "readable-stream": "npm:readable-stream@2.2.3",
       "typedarray-to-buffer": "npm:typedarray-to-buffer@3.1.2",
       "xtend": "npm:xtend@4.0.1"
     },
@@ -439,6 +444,12 @@ System.config({
     },
     "npm:hash.js@1.0.3": {
       "inherits": "npm:inherits@2.0.1"
+    },
+    "npm:hmac-drbg@1.0.0": {
+      "hash.js": "npm:hash.js@1.0.3",
+      "minimalistic-assert": "npm:minimalistic-assert@1.0.0",
+      "minimalistic-crypto-utils": "npm:minimalistic-crypto-utils@1.0.1",
+      "systemjs-json": "github:systemjs/plugin-json@0.1.2"
     },
     "npm:https-browserify@0.0.0": {
       "http": "github:jspm/nodelibs-http@1.7.1"
@@ -482,13 +493,14 @@ System.config({
       "process": "github:jspm/nodelibs-process@0.1.2",
       "randombytes": "npm:randombytes@2.0.3"
     },
-    "npm:k-rpc-socket@1.6.1": {
+    "npm:k-rpc-socket@1.6.2": {
       "bencode": "npm:bencode@0.11.0",
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "dgram": "github:jspm/nodelibs-dgram@0.1.0",
       "dns": "github:jspm/nodelibs-dns@0.1.0",
       "events": "github:jspm/nodelibs-events@0.1.1",
       "net": "github:jspm/nodelibs-net@0.1.2",
+      "process": "github:jspm/nodelibs-process@0.1.2",
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
     "npm:k-rpc@4.0.2": {
@@ -497,7 +509,7 @@ System.config({
       "crypto": "github:jspm/nodelibs-crypto@0.1.0",
       "events": "github:jspm/nodelibs-events@0.1.1",
       "k-bucket": "npm:k-bucket@3.2.1",
-      "k-rpc-socket": "npm:k-rpc-socket@1.6.1",
+      "k-rpc-socket": "npm:k-rpc-socket@1.6.2",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
@@ -508,7 +520,7 @@ System.config({
       "process": "github:jspm/nodelibs-process@0.1.2",
       "unreachable-branch-transform": "npm:unreachable-branch-transform@0.3.0"
     },
-    "npm:localforage@1.4.3": {
+    "npm:localforage@1.5.0": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "lie": "npm:lie@3.0.2",
       "path": "github:jspm/nodelibs-path@0.1.0",
@@ -526,7 +538,7 @@ System.config({
     },
     "npm:mediasource@2.1.3": {
       "inherits": "npm:inherits@2.0.1",
-      "readable-stream": "npm:readable-stream@2.2.2",
+      "readable-stream": "npm:readable-stream@2.2.3",
       "to-arraybuffer": "npm:to-arraybuffer@1.0.1"
     },
     "npm:memory-chunk-store@1.2.0": {
@@ -534,7 +546,7 @@ System.config({
     },
     "npm:miller-rabin@4.0.0": {
       "bn.js": "npm:bn.js@4.11.6",
-      "brorand": "npm:brorand@1.0.6"
+      "brorand": "npm:brorand@1.1.0"
     },
     "npm:mime@1.3.4": {
       "assert": "github:jspm/nodelibs-assert@0.1.0",
@@ -553,11 +565,11 @@ System.config({
       "mp4-box-encoding": "npm:mp4-box-encoding@1.1.2",
       "next-event": "npm:next-event@1.0.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "readable-stream": "npm:readable-stream@2.2.2"
+      "readable-stream": "npm:readable-stream@2.2.3"
     },
     "npm:multistream@2.1.0": {
       "inherits": "npm:inherits@2.0.1",
-      "readable-stream": "npm:readable-stream@2.2.2"
+      "readable-stream": "npm:readable-stream@2.2.3"
     },
     "npm:nan@2.4.0": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
@@ -657,7 +669,7 @@ System.config({
     },
     "npm:range-slice-stream@1.2.0": {
       "inherits": "npm:inherits@2.0.1",
-      "readable-stream": "npm:readable-stream@2.2.2"
+      "readable-stream": "npm:readable-stream@2.2.3"
     },
     "npm:readable-stream@1.0.34": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
@@ -669,7 +681,7 @@ System.config({
       "stream-browserify": "npm:stream-browserify@1.0.0",
       "string_decoder": "npm:string_decoder@0.10.31"
     },
-    "npm:readable-stream@2.2.2": {
+    "npm:readable-stream@2.2.3": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "buffer-shims": "npm:buffer-shims@1.0.0",
       "core-util-is": "npm:core-util-is@1.0.2",
@@ -691,7 +703,7 @@ System.config({
       "source-map": "npm:source-map@0.5.6"
     },
     "npm:render-media@2.9.1": {
-      "debug": "npm:debug@2.6.0",
+      "debug": "npm:debug@2.6.1",
       "is-ascii": "npm:is-ascii@1.0.0",
       "mediasource": "npm:mediasource@2.1.3",
       "path": "github:jspm/nodelibs-path@0.1.0",
@@ -738,14 +750,14 @@ System.config({
       "simple-concat": "npm:simple-concat@1.0.0",
       "url": "github:jspm/nodelibs-url@0.1.0"
     },
-    "npm:simple-peer@6.2.1": {
+    "npm:simple-peer@6.4.3": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
-      "debug": "npm:debug@2.6.0",
+      "debug": "npm:debug@2.6.1",
       "get-browser-rtc": "npm:get-browser-rtc@1.0.2",
       "inherits": "npm:inherits@2.0.1",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "randombytes": "npm:randombytes@2.0.3",
-      "readable-stream": "npm:readable-stream@2.2.2"
+      "readable-stream": "npm:readable-stream@2.2.3"
     },
     "npm:simple-sha1@2.1.0": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
@@ -753,12 +765,14 @@ System.config({
       "process": "github:jspm/nodelibs-process@0.1.2",
       "rusha": "npm:rusha@0.8.5"
     },
-    "npm:simple-websocket@4.2.0": {
+    "npm:simple-websocket@4.3.1": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
-      "debug": "npm:debug@2.6.0",
+      "debug": "npm:debug@2.6.1",
       "inherits": "npm:inherits@2.0.1",
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "readable-stream": "npm:readable-stream@2.2.2"
+      "randombytes": "npm:randombytes@2.0.3",
+      "readable-stream": "npm:readable-stream@2.2.3",
+      "xtend": "npm:xtend@4.0.1"
     },
     "npm:source-map@0.1.31": {
       "amdefine": "npm:amdefine@1.0.1",
@@ -814,8 +828,8 @@ System.config({
     },
     "npm:torrent-discovery@8.2.0": {
       "bittorrent-dht": "npm:bittorrent-dht@7.4.1",
-      "bittorrent-tracker": "npm:bittorrent-tracker@8.2.0",
-      "debug": "npm:debug@2.6.0",
+      "bittorrent-tracker": "npm:bittorrent-tracker@8.5.0",
+      "debug": "npm:debug@2.6.1",
       "events": "github:jspm/nodelibs-events@0.1.1",
       "inherits": "npm:inherits@2.0.1",
       "process": "github:jspm/nodelibs-process@0.1.2",
@@ -851,7 +865,7 @@ System.config({
       "bencode": "npm:bencode@0.11.0",
       "bitfield": "npm:bitfield@1.1.2",
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
-      "debug": "npm:debug@2.6.0",
+      "debug": "npm:debug@2.6.1",
       "events": "github:jspm/nodelibs-events@0.1.1",
       "inherits": "npm:inherits@2.0.1",
       "safe-buffer": "npm:safe-buffer@5.0.1",
@@ -883,15 +897,15 @@ System.config({
     "npm:vm-browserify@0.0.4": {
       "indexof": "npm:indexof@0.0.1"
     },
-    "npm:webtorrent@0.98.5": {
+    "npm:webtorrent@0.98.8": {
       "addr-to-ip-port": "npm:addr-to-ip-port@1.4.2",
       "bitfield": "npm:bitfield@1.1.2",
       "bittorrent-dht": "npm:bittorrent-dht@7.4.1",
-      "bittorrent-protocol": "npm:bittorrent-protocol@2.1.7",
+      "bittorrent-protocol": "npm:bittorrent-protocol@2.2.0",
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "chunk-store-stream": "npm:chunk-store-stream@2.0.2",
       "create-torrent": "npm:create-torrent@3.28.0",
-      "debug": "npm:debug@2.6.0",
+      "debug": "npm:debug@2.6.1",
       "end-of-stream": "npm:end-of-stream@1.1.0",
       "events": "github:jspm/nodelibs-events@0.1.1",
       "fs": "github:jspm/nodelibs-fs@0.1.2",
@@ -909,14 +923,14 @@ System.config({
       "random-iterate": "npm:random-iterate@1.0.1",
       "randombytes": "npm:randombytes@2.0.3",
       "range-parser": "npm:range-parser@1.2.0",
-      "readable-stream": "npm:readable-stream@2.2.2",
+      "readable-stream": "npm:readable-stream@2.2.3",
       "render-media": "npm:render-media@2.9.1",
       "run-parallel": "npm:run-parallel@1.1.6",
       "run-parallel-limit": "npm:run-parallel-limit@1.0.3",
       "safe-buffer": "npm:safe-buffer@5.0.1",
       "simple-concat": "npm:simple-concat@1.0.0",
       "simple-get": "npm:simple-get@2.4.0",
-      "simple-peer": "npm:simple-peer@6.2.1",
+      "simple-peer": "npm:simple-peer@6.4.3",
       "simple-sha1": "npm:simple-sha1@2.1.0",
       "speedometer": "npm:speedometer@1.0.0",
       "stream-to-blob": "npm:stream-to-blob@1.0.0",
@@ -932,7 +946,7 @@ System.config({
       "xtend": "npm:xtend@4.0.1",
       "zero-fill": "npm:zero-fill@2.2.3"
     },
-    "npm:ws@1.1.1": {
+    "npm:ws@1.1.2": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "bufferutil": "npm:bufferutil@1.2.1",
       "crypto": "github:jspm/nodelibs-crypto@0.1.0",
