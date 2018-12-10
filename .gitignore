@@ -1,6 +1,8 @@
-# dependencies
+# folders
 jspm_packages
 node_modules
+elm-stuff
+public
 
 # misc
 .DS_Store

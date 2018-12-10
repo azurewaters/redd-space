@@ -1,31 +1,33 @@
 {
-  "name": "reddspace",
-  "version": "1.1.0",
-  "description": "Redd Space allows transfer of files on a LAN.",
+  "name": "redd-space",
+  "version": "1.0.0",
+  "description": "",
   "main": "index.js",
-  "private": true,
+  "devDependencies": {
+    "node-sass": "^4.9.3"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run process-elm-files && npm run process-html-files && npm run process-scss-files && npm run process-js-files",
+    "clean": "rm -rf public/*",
+    "debug": "npm run debug-process-elm-files && npm run process-html-files && npm run process-scss-files && npm run process-js-files",
+    "process-elm-files": "elm make source/scripts/Main.elm --output=public/scripts/Main.js --optimize && uglifyjs public/scripts/Main.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters=true,keep_fargs=false,unsafe_comps=true,unsafe=true,passes=2' --output=public/scripts/Main.js && uglifyjs public/scripts/Main.js --mangle --output=public/scripts/Main.js",
+    "debug-process-elm-files": "elm make source/scripts/Main.elm --output=public/scripts/Main.js --debug",
+    "process-html-files": "cp source/*.html public/",
+    "process-image-files": "mkdir -p public/images && cp source/images/* public/images/",
+    "process-js-files": "mkdir -p public/scripts/ && cp ./source/scripts/*.js ./public/scripts",
+    "process-scss-files": "node-sass ./source/styles/index.scss --output ./public/styles --output-style compressed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://azurewaters@bitbucket.org/sharangrandigae/space.git"
   },
   "keywords": [
-    "webrtc",
-    "LAN"
+    "file",
+    "transfer",
+    "html",
+    "elm"
   ],
   "author": "azurewaters@gmail.com",
   "license": "ISC",
-  "jspm": {
-    "dependencies": {
-      "localforage": "npm:localforage@^1.4.3",
-      "webtorrent": "npm:webtorrent@^0.98.3"
-    },
-    "devDependencies": {
-      "babel": "npm:babel-core@^5.8.24",
-      "babel-runtime": "npm:babel-runtime@^5.8.24",
-      "core-js": "npm:core-js@^1.1.4"
-    },
-    "buildConfig": {
-      "transpileES6": true,
-      "minify": true
-    }
-  }
+  "homepage": "https://bitbucket.org/sharangrandigae/space#readme"
 }
