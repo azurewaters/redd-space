@@ -2,7 +2,7 @@ port module Main exposing (..)
 
 import Browser
 import Browser.Navigation
-import Html exposing (..)
+import Html exposing (a, button, div, Html, input, main_, section, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Json.Encode as Encode exposing (Value)
@@ -211,13 +211,13 @@ uploadStateDecoder =
     Decode.field "uploadState" Decode.string
 
 
-port batchId : (Json.Encode.Value -> msg) -> Sub msg
+port batchId : (Encode.Value -> msg) -> Sub msg
 
 
-port chosenFiles : (Json.Encode.Value -> msg) -> Sub msg
+port chosenFiles : (Encode.Value -> msg) -> Sub msg
 
 
-port filesUploadStatusChanged : (Json.Encode.Value -> msg) -> Sub msg
+port filesUploadStatusChanged : (Encode.Value -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
