@@ -1,7 +1,15 @@
+@import url('https://fonts.googleapis.com/css?family=Dosis:700|Raleway');
+$salmon: '#fc4349';
+
+$fontSizeTitleMedium: 24px;
+$fontSizeTitleLarge: 48px;
+
 * {
     box-sizing: border-box;
 }
 
-input#filesChooser {
-	display: none;
+body {
+    background-color: $salmon;
+    color: white;
+    font-family: 'Dosis';
 }
