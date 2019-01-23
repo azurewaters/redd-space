@@ -12,7 +12,7 @@ connectionRef.on('value', (snapshot) => {
     setUp()
   } else {
     //  We will have to terminate all incomplete transfers and shut the app down
-    main.ports.userHasGoneOffline.send(true)
+    main.ports.userHasGoneOfflineFromJS.send(true)
   }
 })
 
@@ -149,7 +149,10 @@ function transferFiles (detailsOfFilesUploadTransaction) {
           //  The upload is proceeding normally
           let progress = (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100
           overallUploadProgress[fileNumber] = progress
-          let dataToBeSentToElm = { overallUploadProgress: overallUploadProgress.reduce((accumulator, currentValue) => { accumulator + currentValue }) / (numberOfFilesToUpload * 100), receiversUserName: detailsOfFilesUploadTransaction.receiversUserName }
+          let dataToBeSentToElm =
+            { overallUploadProgress: 100 * overallUploadProgress.reduce((accumulator, currentValue) => { return accumulator + currentValue }) / (numberOfFilesToUpload * 100),
+              receiversUserName: detailsOfFilesUploadTransaction.receiversUserName
+            }
           main.ports.filesUploadProgressFromJS.send(dataToBeSentToElm)
           break
       }

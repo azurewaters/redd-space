@@ -1,8 +1,7 @@
 port module Main exposing (..)
 
 import Browser
-import Debug exposing (..)
-import Html exposing (a, button, div, Html, input, main_, section, span, text)
+import Html exposing (a, button, div, Html, img, input, main_, section, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Encode exposing (..)
@@ -36,6 +35,12 @@ type alias FileReadyToBeDownloaded =
     }
 
 
+type alias FilesUploadProgress =
+    { overallUploadProgress : Float
+    , receiversUserName : String
+    }
+
+
 type alias IPAddress =
     String
 
@@ -64,6 +69,7 @@ type alias ThisUsersName =
 
 type alias User =
     { filesReadyToBeDownloaded : List FileReadyToBeDownloaded
+    , messageToDisplay : String
     , name : String
     }
 
@@ -81,6 +87,7 @@ type Msg
     = AUserCameIn String
     | AUserLeft String
     | FileChosen String
+    | FilesUploadProgressReceived FilesUploadProgress
     | IPAddressReceived String
     | NoOp
     | ReceivedADownloadFileInstruction MessageReceivedFromAnotherPerson
@@ -97,7 +104,7 @@ update msg model =
                     case model of
                         Ready ipAddress otherUsers thisUsersName ->
                             if userName /= thisUsersName then
-                                Ready ipAddress (((User [] userName) :: otherUsers) |> List.sortBy .name) thisUsersName
+                                Ready ipAddress (((User [] "" userName) :: otherUsers) |> List.sortBy .name) thisUsersName
                             else
                                 model
 
@@ -142,6 +149,38 @@ update msg model =
             in
                 ( model, commandToInvoke )
 
+        FilesUploadProgressReceived filesUploadProgress ->
+            let
+                newModel =
+                    case model of
+                        Ready ipAddress otherUsers thisUsersName ->
+                            let
+                                updateMessageToDisplayIfUserNamesMatch : User -> User
+                                updateMessageToDisplayIfUserNamesMatch user =
+                                    if user.name == filesUploadProgress.receiversUserName then
+                                        let
+                                            newMessageToDisplay =
+                                                case (Basics.round filesUploadProgress.overallUploadProgress) of
+                                                    100 ->
+                                                        "Upload complete"
+
+                                                    _ ->
+                                                        (filesUploadProgress.overallUploadProgress |> Basics.round |> String.fromInt) ++ "% uploaded"
+                                        in
+                                            { user | messageToDisplay = newMessageToDisplay }
+                                    else
+                                        user
+
+                                newOtherUsers =
+                                    List.map updateMessageToDisplayIfUserNamesMatch otherUsers
+                            in
+                                Ready ipAddress newOtherUsers thisUsersName
+
+                        _ ->
+                            model
+            in
+                ( newModel, Cmd.none )
+
         IPAddressReceived newIPAddress ->
             ( Connected newIPAddress, Cmd.none )
 
@@ -158,7 +197,7 @@ update msg model =
                     else
                         user
 
-                modelToUpdateTo =
+                newModel =
                     case model of
                         Ready ipAddress otherUsers thisUsersName ->
                             let
@@ -173,7 +212,7 @@ update msg model =
                         _ ->
                             model
             in
-                ( modelToUpdateTo, Cmd.none )
+                ( newModel, Cmd.none )
 
         UserHasGoneOffline ->
             let
@@ -184,7 +223,7 @@ update msg model =
 
         UsersNameReceived newThisUsersName ->
             let
-                modelToUpdateTo =
+                newModel =
                     case model of
                         Connected ipAddress ->
                             Ready ipAddress [] newThisUsersName
@@ -192,7 +231,7 @@ update msg model =
                         _ ->
                             model
             in
-                ( modelToUpdateTo, Cmd.none )
+                ( newModel, Cmd.none )
 
 
 port filesChosenToJS : DetailsOfFilesUploadTransaction -> Cmd msg
@@ -202,33 +241,72 @@ port filesChosenToJS : DetailsOfFilesUploadTransaction -> Cmd msg
 -- View
 
 
+classToApply : Model -> Html.Attribute msg
+classToApply model =
+    case model of
+        Ready _ _ _ ->
+            class "readyState"
+
+        _ ->
+            class "notReadyState"
+
+
 view : Model -> Html Msg
 view model =
+    main_
+        [ classToApply model ]
+        [ section [ id "header" ] (viewHeader model)
+        , section [ id "body" ] [ viewBody model ]
+        , section [ id "footer" ] [ a [ href "https://www.redd.in", target "_blank" ] [ text "DESIGNED BY REDD" ] ]
+        ]
+
+
+viewBody : Model -> Html Msg
+viewBody model =
     case model of
         Loading ->
-            section [] [ text "Loading" ]
+            viewSimpleMessage "LOADING..."
 
         Connected ipAddress ->
-            section [] [ text ("Connected to " ++ ipAddress) ]
+            viewSimpleMessage "REGISTERING..."
 
         Ready ipAddress otherUsers usersName ->
-            section []
-                [ viewUser usersName
-                , section [ id "otherUsers" ] (viewOtherUsers otherUsers)
-                ]
+            section
+                [ id "readyStateComponentsContainer" ]
+                (viewOtherUsers otherUsers)
 
         Disconnected ->
-            section [] [ text "You are not online!" ]
+            viewSimpleMessage "WAITING TO CONNECT TO THE NETWORK..."
 
 
 viewDownloadableFiles : List FileReadyToBeDownloaded -> List (Html Msg)
 viewDownloadableFiles filesReadyToBeDownloaded =
-    List.map viewDownloadableFileLink filesReadyToBeDownloaded
+    case filesReadyToBeDownloaded of
+        [] ->
+            []
+
+        _ ->
+            div [ class "titleOfTheSection" ] [ text "The Following Files Were Sent To You" ] :: (List.map viewDownloadableFileLink filesReadyToBeDownloaded)
 
 
 viewDownloadableFileLink : FileReadyToBeDownloaded -> Html Msg
 viewDownloadableFileLink fileReadyToBeDownloaded =
-    a [ download fileReadyToBeDownloaded.fileName, href fileReadyToBeDownloaded.downloadURL, target "_blank" ] [ text fileReadyToBeDownloaded.fileName ]
+    a
+        [ class "downloadableFileLink"
+        , download fileReadyToBeDownloaded.fileName
+        , href fileReadyToBeDownloaded.downloadURL
+        , target "_blank"
+        ]
+        [ text fileReadyToBeDownloaded.fileName ]
+
+
+viewHeader model =
+    [ div [ id "nameAndBylineContainer" ]
+        [ div [ id "productName" ] [ text "REDD SPACE" ]
+        , div [ class "label", id "productByline" ] [ text "FILE TRANSFER. DONE. [BETA]" ]
+        ]
+    , div [ id "usersNameContainer" ] (viewUsersName model)
+    ]
 
 
 viewOtherUser : User -> Html Msg
@@ -237,71 +315,108 @@ viewOtherUser user =
         idOfTheInput =
             "fileChooser_" ++ (String.replace " " "_" user.name)
     in
-        div [ id user.name ]
-            [ text user.name
-            , input
-                [ id idOfTheInput
-                , multiple True
-                , onFileSelected FileChosen
-                , type_ "file"
+        div [ class "otherUser", id user.name ]
+            [ div
+                [ class "innerBox" ]
+                [ div
+                    [ class "otherUsersName" ]
+                    [ text (String.toUpper user.name) ]
+                , div
+                    [ class "chooseFilesButton" ]
+                    [ input
+                        [ class "fileChooser"
+                        , id idOfTheInput
+                        , multiple True
+                        , onFileSelected FileChosen
+                        , type_ "file"
+                        ]
+                        []
+                    , text "Send files"
+                    ]
+                , div [ class "message" ] [ text user.messageToDisplay ]
+                , section
+                    [ class "listOfDownloadableFiles" ]
+                    (viewDownloadableFiles user.filesReadyToBeDownloaded)
                 ]
-                [ text "Choose a file to send" ]
-            , section [] (viewDownloadableFiles user.filesReadyToBeDownloaded)
             ]
 
 
 viewOtherUsers : List User -> List (Html Msg)
 viewOtherUsers otherUsers =
     if List.isEmpty otherUsers then
-        [ div [] [ text "Nobody else is here" ] ]
+        [ div
+            [ id "waitingMessage" ]
+            [ img [ src "images/waiting-white.svg" ] []
+            , text "WAITING FOR OTHER USERS TO JOIN"
+            ]
+        ]
     else
         List.map viewOtherUser otherUsers
 
 
-viewTitle : String -> Html Msg
-viewTitle thisUsersName =
+viewSimpleMessage : String -> Html Msg
+viewSimpleMessage messageToDisplay =
     section
-        [ id "pageTitleContainer" ]
-        [ section [ class "productName" ] [ text "REDD SPACE" ]
-        , section [ class "productByline" ] [ text "File Transfer. Done. [BETA]" ]
-        , section
-            [ id "usersNameContainer" ]
-            [ section [] [ text "Your handle is" ]
-            , section [] [ text thisUsersName ]
+        [ id "notReadyStateComponentsContainer" ]
+        [ text messageToDisplay ]
+
+
+viewUsersName : Model -> List (Html Msg)
+viewUsersName model =
+    case model of
+        Ready ipAddress otherUsers thisUsersName ->
+            [ div [ class "label", id "usersNameLabel" ] [ text "YOUR HANDLE IS" ]
+            , div [ id "usersName" ] [ text (String.toUpper thisUsersName) ]
             ]
-        ]
+
+        _ ->
+            []
 
 
 
 -- Subscriptions
 
 
-decodeIPAddressFromJS : Value -> Msg
-decodeIPAddressFromJS receivedValue =
+decodeFilesUploadProgress : Json.Decode.Value -> Msg
+decodeFilesUploadProgress receivedValue =
     let
-        resultsOfDecoding =
+        resultOfDecoding =
+            Json.Decode.decodeValue filesUploadProgressDecoder receivedValue
+    in
+        case resultOfDecoding of
+            Ok filesUploadProgress ->
+                FilesUploadProgressReceived filesUploadProgress
+
+            Err error ->
+                NoOp
+
+
+decodeIPAddress : Json.Decode.Value -> Msg
+decodeIPAddress receivedValue =
+    let
+        resultOfDecoding =
             Json.Decode.decodeValue string receivedValue
     in
-        case resultsOfDecoding of
+        case resultOfDecoding of
             Ok newIPAddress ->
                 IPAddressReceived newIPAddress
 
             Err error ->
-                Debug.log (Json.Decode.errorToString error) NoOp
+                NoOp
 
 
 decodeMessageReceivedFromAnotherPerson : Json.Decode.Value -> Msg
 decodeMessageReceivedFromAnotherPerson receivedValue =
     let
-        resultsOfDecoding =
+        resultOfDecoding =
             Json.Decode.decodeValue messageReceivedFromAnotherPersonDecoder receivedValue
     in
-        case resultsOfDecoding of
+        case resultOfDecoding of
             Ok message ->
                 ReceivedADownloadFileInstruction message
 
             Err error ->
-                Debug.log (Json.Decode.errorToString error) NoOp
+                NoOp
 
 
 decodeNameOfOtherUserWhoCameInOrLeft : (String -> Msg) -> Json.Decode.Value -> Msg
@@ -315,7 +430,7 @@ decodeNameOfOtherUserWhoCameInOrLeft msg receivedValue =
                 msg nameOfOtherUser
 
             Err error ->
-                Debug.log (Json.Decode.errorToString error) NoOp
+                NoOp
 
 
 decodeNameOfOtherUserWhoCameIn : Json.Decode.Value -> Msg
@@ -339,24 +454,27 @@ decodeUserHasGoneOffline receivedValue =
                 if offline then
                     UserHasGoneOffline
                 else
-                    Debug.log "User has gone offline, but we received a False value" NoOp
+                    NoOp
 
             Err error ->
-                Debug.log (Json.Decode.errorToString error) NoOp
+                NoOp
 
 
 decodeUserNameFromJS : Json.Decode.Value -> Msg
 decodeUserNameFromJS receivedValue =
     let
-        resultsOfDecoding =
+        resultOfDecoding =
             Json.Decode.decodeValue Json.Decode.string receivedValue
     in
-        case resultsOfDecoding of
+        case resultOfDecoding of
             Ok newUsersName ->
                 UsersNameReceived newUsersName
 
             Err error ->
-                Debug.log (Json.Decode.errorToString error) NoOp
+                NoOp
+
+
+port filesUploadProgressFromJS : (Json.Decode.Value -> msg) -> Sub msg
 
 
 port ipAddressFromJS : (Json.Decode.Value -> msg) -> Sub msg
@@ -371,7 +489,7 @@ port otherUserCameInFromJS : (Json.Decode.Value -> msg) -> Sub msg
 port otherUserLeftFromJS : (Json.Decode.Value -> msg) -> Sub msg
 
 
-port userHasGoneOffline : (Json.Decode.Value -> msg) -> Sub msg
+port userHasGoneOfflineFromJS : (Json.Decode.Value -> msg) -> Sub msg
 
 
 port userNameFromJS : (Json.Decode.Value -> msg) -> Sub msg
@@ -380,11 +498,12 @@ port userNameFromJS : (Json.Decode.Value -> msg) -> Sub msg
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ ipAddressFromJS decodeIPAddressFromJS
+        [ filesUploadProgressFromJS decodeFilesUploadProgress
+        , ipAddressFromJS decodeIPAddress
         , messageReceivedFromAnotherPersonFromJS decodeMessageReceivedFromAnotherPerson
         , otherUserCameInFromJS decodeNameOfOtherUserWhoCameIn
         , otherUserLeftFromJS decodeNameOfOtherUserWhoLeft
-        , userHasGoneOffline decodeUserHasGoneOffline
+        , userHasGoneOfflineFromJS decodeUserHasGoneOffline
         , userNameFromJS decodeUserNameFromJS
         ]
 
@@ -417,6 +536,11 @@ fileReadyToBeDownloadedDecoder =
     Json.Decode.map2 FileReadyToBeDownloaded downloadURLDecoder fileNameDecoder
 
 
+filesUploadProgressDecoder : Decoder FilesUploadProgress
+filesUploadProgressDecoder =
+    Json.Decode.map2 FilesUploadProgress overallUploadProgressDecoder receiversUserNameDecoder
+
+
 fromDecoder : Decoder String
 fromDecoder =
     Json.Decode.field "from" Json.Decode.string
@@ -430,6 +554,16 @@ inputsTargetIdDecoder =
 messageReceivedFromAnotherPersonDecoder : Decoder MessageReceivedFromAnotherPerson
 messageReceivedFromAnotherPersonDecoder =
     Json.Decode.map3 MessageReceivedFromAnotherPerson fileReadyToBeDownloadedDecoder fromDecoder textDecoder
+
+
+overallUploadProgressDecoder : Decoder Float
+overallUploadProgressDecoder =
+    Json.Decode.field "overallUploadProgress" Json.Decode.float
+
+
+receiversUserNameDecoder : Decoder String
+receiversUserNameDecoder =
+    Json.Decode.field "receiversUserName" Json.Decode.string
 
 
 textDecoder : Decoder String

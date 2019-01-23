@@ -1,15 +1,257 @@
-@import url('https://fonts.googleapis.com/css?family=Dosis:700|Raleway');
-$salmon: '#fc4349';
+@import url('https://fonts.googleapis.com/css?family=Dosis|Raleway');
 
-$fontSizeTitleMedium: 24px;
-$fontSizeTitleLarge: 48px;
+$colourDarkBlue: #4d6277;
+$colourLightBlue : #8ed3f2;
+$colourLightGrey: #e6e5e6;
+$colourMediumGrey: #b0b3b4;
+$colourSalmon: #fc4349;
+
+$fontSizeLarge: 3rem;
+$fontSizeMedium: 1.5rem;
+$fontSizeSmall: 0.75rem;
+$fontSizeTiny: 0.625rem;
+
+%blueRoundedButton {
+    background-color: $colourDarkBlue;
+    border: solid 1px rgba(0, 0, 0, .1);
+    border-radius: 2rem;
+    color: $colourLightGrey;
+    font-size: $fontSizeSmall;
+    font-weight: bold;
+    padding: .5rem 1rem;
+    text-align: center;
+
+    &:hover {
+        color: white;
+    }
+}
 
 * {
     box-sizing: border-box;
 }
 
 body {
-    background-color: $salmon;
     color: white;
     font-family: 'Dosis';
+    font-weight: 300;
+}
+
+body, html {
+    border: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+main {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: min-content auto min-content;
+    min-height: 100%;
+}
+
+.label {
+    color: white;
+    font-family: 'Raleway';
+
+}
+
+.notReadyState {
+    background-color: $colourSalmon;
+}
+
+.readyState {
+    background-color: $colourLightBlue;
+}
+
+#body {
+    align-items: center;
+    display: grid;
+    justify-items: center;
+
+    #readyStateComponentsContainer {
+        align-content: flex-start;
+        align-items: flex-start;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1vmax;
+        justify-content: space-evenly;
+        padding: 1rem;
+
+        .otherUser {
+            background-color: rgba(255, 255, 255, .1);
+            border-radius: 2rem;
+            padding: 2rem;
+
+            
+            .innerBox {          
+                align-items: center;
+                background-color: rgb(230, 229, 230);
+                border: solid 1px white {
+                    radius: 2rem;
+                }
+                box-shadow: 0 10px 10px rgba(0, 0, 0, 0.25);
+                display: grid;
+                grid: {
+                    template: {
+                        columns: auto;
+                        rows: repeat(3, min-content) auto;
+                    }
+                    row-gap: 1rem;
+                }
+                justify-items: center;
+                min-width: 200px;
+                padding: 2vmax;
+                row-gap: 1rem;
+                
+                .chooseFilesButton {
+                    @extend %blueRoundedButton;
+                    position: relative;
+                    
+                    .fileChooser {
+                        cursor: pointer;
+                        height: 100%;
+                        left: 0;
+                        opacity: 0;
+                        position: absolute;
+                        top: 0;
+                        width: 100%;
+                    }
+                }
+
+                .listOfDownloadableFiles {
+                    display: grid;
+                    grid-auto-rows: max-content;
+                    grid-row-gap: 1rem;
+                    grid-template-columns: auto;
+                    margin-top: 1rem;
+                    row-gap: 1rem;
+
+                    a.downloadableFileLink {
+                        @extend %blueRoundedButton;
+                        text-decoration: none;
+
+                        &:visited {
+                            color: $colourMediumGrey;
+                        }
+                    }
+
+                    div.titleOfTheSection {
+                        color: $colourDarkBlue;
+                        font: {
+                            family: "Raleway";
+                            size: $fontSizeTiny;
+                            weight: bold;
+                        }
+                        text-align: center;
+                    }
+                }
+
+                .message {
+                    color: $colourDarkBlue;
+                    font: {
+                        family: 'Raleway';
+                        size: $fontSizeTiny;
+                    }
+                }
+
+                .otherUsersName {
+                    color: $colourDarkBlue;
+                    font-size: $fontSizeMedium;
+                    font-weight: bold;
+                    text-align: center;
+                    width: 100%;
+                }
+            }
+            
+        }
+    }
+}
+
+#footer {
+    background-color: $colourLightGrey;
+    border-top: solid 1px white;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+    padding: 1vh;
+    text-align: center;
+    
+    a {
+        color: $colourMediumGrey;
+        font-weight: 600;
+        text-decoration: none;
+    }
+}
+
+#header {
+    display: grid;
+    padding: 1rem;
+    width: 100%;
+
+    #nameAndBylineContainer {
+        display: grid;
+        
+        #productName {
+            font-size: $fontSizeLarge;
+        }
+
+        #productByline {
+            font-size: $fontSizeTiny;
+            font-weight: bold;
+        }
+    }
+
+    #usersNameContainer {
+        display: grid;
+        
+        #usersNameLabel {
+            font-size: $fontSizeTiny;
+            font-weight: bold;
+        }
+        
+        #usersName {
+            font-size: $fontSizeMedium;
+        }
+    }
+}
+
+#waitingMessage {
+    display: grid;
+    font-weight: bold;
+    grid-row-gap: 1vmax;
+    grid-template-columns: auto;
+    grid-template-rows: min-content min-content;
+    justify-items: center;
+    row-gap: 1vmax;
+}
+
+@media screen and (max-width: 640px) {
+    #header {
+        grid-template-columns: auto;
+        grid-template-rows: repeat(2, auto);
+    }
+}
+
+@media screen and (min-width: 641px) {
+    #header {
+        grid-template-columns: repeat(3, auto);
+        
+        #nameAndBylineContainer {
+            align-items: baseline;
+            grid-column-gap: 1vmax;
+            grid-template-columns: repeat(2, auto);
+            justify-self: start;
+        }
+        
+        #nameAndBylineContainer, #usersNameContainer {
+            align-self: center;
+        }
+        
+        #usersNameContainer {
+            grid-column: 3/4;
+            justify-items: end;
+            justify-self: end;
+        }
+    }
 }
