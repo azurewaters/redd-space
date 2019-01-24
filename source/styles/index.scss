@@ -83,8 +83,6 @@ main {
         .otherUser {
             background-color: rgba(255, 255, 255, .1);
             border-radius: 2rem;
-            padding: 2rem;
-
             
             .innerBox {          
                 align-items: center;
@@ -103,7 +101,7 @@ main {
                 }
                 justify-items: center;
                 min-width: 200px;
-                padding: 2vmax;
+                padding: 2rem;
                 row-gap: 1rem;
                 
                 .chooseFilesButton {
@@ -161,11 +159,11 @@ main {
                     color: $colourDarkBlue;
                     font-size: $fontSizeMedium;
                     font-weight: bold;
+                    padding: 2rem 1rem 0 1rem;
                     text-align: center;
                     width: 100%;
                 }
             }
-            
         }
     }
 }
@@ -226,14 +224,19 @@ main {
     row-gap: 1vmax;
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 480px) {
     #header {
-        grid-template-columns: auto;
-        grid-template-rows: repeat(2, auto);
+        grid-row-gap: 1rem;
+        justify-items: center;
+        row-gap: 1rem;
+
+        #nameAndBylineContainer, #usersNameContainer {
+            justify-items: center;
+        }
     }
 }
 
-@media screen and (min-width: 641px) {
+@media screen and (min-width: 481px) {
     #header {
         grid-template-columns: repeat(3, auto);
         

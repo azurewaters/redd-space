@@ -327,7 +327,7 @@ viewOtherUser user =
                         [ class "fileChooser"
                         , id idOfTheInput
                         , multiple True
-                        , onFileSelected FileChosen
+                        , onFilesChosen FileChosen
                         , type_ "file"
                         ]
                         []
@@ -512,9 +512,9 @@ subscriptions model =
 -- Custom events
 
 
-onFileSelected : (String -> msg) -> Html.Attribute msg
-onFileSelected message =
-    Html.Events.on "input" (Json.Decode.map message inputsTargetIdDecoder)
+onFilesChosen : (String -> msg) -> Html.Attribute msg
+onFilesChosen message =
+    Html.Events.on "change" (Json.Decode.map message inputsTargetIdDecoder)
 
 
 

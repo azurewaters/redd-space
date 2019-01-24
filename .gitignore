@@ -1,13 +1,16 @@
 # folders
+.DS_Store
+.firebase/
+elm-stuff
+functions/node_modules
 jspm_packages
 node_modules
-elm-stuff
 public
-functions/node_modules
 
 # misc
-.DS_Store
-npm-debug.log
+.firebaserc
 build.js
 build.js.map
 firebase-debug.log
+npm-debug.log
+*.cache
