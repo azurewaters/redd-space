@@ -29,7 +29,7 @@ type alias DetailsOfFilesUploadTransaction =
     }
 
 
-type alias FileReadyToBeDownloaded =
+type alias FileToBeDownloaded =
     { downloadURL : String
     , fileName : String
     }
@@ -41,15 +41,14 @@ type alias FilesUploadProgress =
     }
 
 
+type alias InstructionToDownloadAFile =
+    { fileToBeDownloaded : FileToBeDownloaded
+    , from : String
+    }
+
+
 type alias IPAddress =
     String
-
-
-type alias MessageReceivedFromAnotherPerson =
-    { fileReadyToBeDownloaded : FileReadyToBeDownloaded
-    , from : String
-    , text : String
-    }
 
 
 type Model
@@ -68,7 +67,7 @@ type alias ThisUsersName =
 
 
 type alias User =
-    { filesReadyToBeDownloaded : List FileReadyToBeDownloaded
+    { filesToBeDownloaded : List FileToBeDownloaded
     , messageToDisplay : String
     , name : String
     }
@@ -90,7 +89,7 @@ type Msg
     | FilesUploadProgressReceived FilesUploadProgress
     | IPAddressReceived String
     | NoOp
-    | ReceivedADownloadFileInstruction MessageReceivedFromAnotherPerson
+    | ReceivedADownloadFileInstruction InstructionToDownloadAFile
     | UserHasGoneOffline
     | UsersNameReceived String
 
@@ -190,10 +189,10 @@ update msg model =
         ReceivedADownloadFileInstruction receivedMessage ->
             --  Add to the list of files that can be downloaded from a user
             let
-                updateUsersFilesToBeDownloadedIfTheUserNameMatches : String -> FileReadyToBeDownloaded -> User -> User
-                updateUsersFilesToBeDownloadedIfTheUserNameMatches userNameToMatch fileReadyToBeDownloaded user =
+                updateUsersFilesToBeDownloadedIfTheUserNameMatches : String -> FileToBeDownloaded -> User -> User
+                updateUsersFilesToBeDownloadedIfTheUserNameMatches userNameToMatch fileToBeDownloaded user =
                     if user.name == userNameToMatch then
-                        { user | filesReadyToBeDownloaded = fileReadyToBeDownloaded :: user.filesReadyToBeDownloaded }
+                        { user | filesToBeDownloaded = fileToBeDownloaded :: user.filesToBeDownloaded }
                     else
                         user
 
@@ -202,7 +201,7 @@ update msg model =
                         Ready ipAddress otherUsers thisUsersName ->
                             let
                                 curriedUpdateUsersFilesToBeDownloadedIfTheUserNameMatches =
-                                    updateUsersFilesToBeDownloadedIfTheUserNameMatches receivedMessage.from receivedMessage.fileReadyToBeDownloaded
+                                    updateUsersFilesToBeDownloadedIfTheUserNameMatches receivedMessage.from receivedMessage.fileToBeDownloaded
 
                                 updatedOtherUsers =
                                     List.map curriedUpdateUsersFilesToBeDownloadedIfTheUserNameMatches otherUsers
@@ -215,11 +214,7 @@ update msg model =
                 ( newModel, Cmd.none )
 
         UserHasGoneOffline ->
-            let
-                newModel =
-                    Disconnected
-            in
-                ( newModel, Cmd.none )
+            ( Disconnected, Cmd.none )
 
         UsersNameReceived newThisUsersName ->
             let
@@ -279,25 +274,25 @@ viewBody model =
             viewSimpleMessage "WAITING TO CONNECT TO THE NETWORK..."
 
 
-viewDownloadableFiles : List FileReadyToBeDownloaded -> List (Html Msg)
-viewDownloadableFiles filesReadyToBeDownloaded =
-    case filesReadyToBeDownloaded of
+viewDownloadableFiles : List FileToBeDownloaded -> List (Html Msg)
+viewDownloadableFiles filesToBeDownloaded =
+    case filesToBeDownloaded of
         [] ->
             []
 
         _ ->
-            div [ class "titleOfTheSection" ] [ text "The Following Files Were Sent To You" ] :: (List.map viewDownloadableFileLink filesReadyToBeDownloaded)
+            div [ class "titleOfTheSection" ] [ text "The Following Files Were Sent To You" ] :: (List.map viewDownloadableFileLink filesToBeDownloaded)
 
 
-viewDownloadableFileLink : FileReadyToBeDownloaded -> Html Msg
-viewDownloadableFileLink fileReadyToBeDownloaded =
+viewDownloadableFileLink : FileToBeDownloaded -> Html Msg
+viewDownloadableFileLink fileToBeDownloaded =
     a
         [ class "downloadableFileLink"
-        , download fileReadyToBeDownloaded.fileName
-        , href fileReadyToBeDownloaded.downloadURL
+        , download fileToBeDownloaded.fileName
+        , href fileToBeDownloaded.downloadURL
         , target "_blank"
         ]
-        [ text fileReadyToBeDownloaded.fileName ]
+        [ text fileToBeDownloaded.fileName ]
 
 
 viewHeader model =
@@ -336,7 +331,7 @@ viewOtherUser user =
                 , div [ class "message" ] [ text user.messageToDisplay ]
                 , section
                     [ class "listOfDownloadableFiles" ]
-                    (viewDownloadableFiles user.filesReadyToBeDownloaded)
+                    (viewDownloadableFiles user.filesToBeDownloaded)
                 ]
             ]
 
@@ -391,6 +386,20 @@ decodeFilesUploadProgress receivedValue =
                 NoOp
 
 
+decodeInstructionToDownloadAFile : Json.Decode.Value -> Msg
+decodeInstructionToDownloadAFile receivedValue =
+    let
+        resultOfDecoding =
+            Json.Decode.decodeValue instructionToDownloadAFileDecoder receivedValue
+    in
+        case resultOfDecoding of
+            Ok message ->
+                ReceivedADownloadFileInstruction message
+
+            Err error ->
+                NoOp
+
+
 decodeIPAddress : Json.Decode.Value -> Msg
 decodeIPAddress receivedValue =
     let
@@ -400,20 +409,6 @@ decodeIPAddress receivedValue =
         case resultOfDecoding of
             Ok newIPAddress ->
                 IPAddressReceived newIPAddress
-
-            Err error ->
-                NoOp
-
-
-decodeMessageReceivedFromAnotherPerson : Json.Decode.Value -> Msg
-decodeMessageReceivedFromAnotherPerson receivedValue =
-    let
-        resultOfDecoding =
-            Json.Decode.decodeValue messageReceivedFromAnotherPersonDecoder receivedValue
-    in
-        case resultOfDecoding of
-            Ok message ->
-                ReceivedADownloadFileInstruction message
 
             Err error ->
                 NoOp
@@ -480,7 +475,7 @@ port filesUploadProgressFromJS : (Json.Decode.Value -> msg) -> Sub msg
 port ipAddressFromJS : (Json.Decode.Value -> msg) -> Sub msg
 
 
-port messageReceivedFromAnotherPersonFromJS : (Json.Decode.Value -> msg) -> Sub msg
+port instructionToDownloadAFileReceivedFromJS : (Json.Decode.Value -> msg) -> Sub msg
 
 
 port otherUserCameInFromJS : (Json.Decode.Value -> msg) -> Sub msg
@@ -499,8 +494,8 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ filesUploadProgressFromJS decodeFilesUploadProgress
+        , instructionToDownloadAFileReceivedFromJS decodeInstructionToDownloadAFile
         , ipAddressFromJS decodeIPAddress
-        , messageReceivedFromAnotherPersonFromJS decodeMessageReceivedFromAnotherPerson
         , otherUserCameInFromJS decodeNameOfOtherUserWhoCameIn
         , otherUserLeftFromJS decodeNameOfOtherUserWhoLeft
         , userHasGoneOfflineFromJS decodeUserHasGoneOffline
@@ -531,9 +526,9 @@ fileNameDecoder =
     Json.Decode.field "fileName" Json.Decode.string
 
 
-fileReadyToBeDownloadedDecoder : Decoder FileReadyToBeDownloaded
-fileReadyToBeDownloadedDecoder =
-    Json.Decode.map2 FileReadyToBeDownloaded downloadURLDecoder fileNameDecoder
+fileToBeDownloadedDecoder : Decoder FileToBeDownloaded
+fileToBeDownloadedDecoder =
+    Json.Decode.map2 FileToBeDownloaded downloadURLDecoder fileNameDecoder
 
 
 filesUploadProgressDecoder : Decoder FilesUploadProgress
@@ -551,9 +546,9 @@ inputsTargetIdDecoder =
     Json.Decode.field "target" (Json.Decode.field "id" Json.Decode.string)
 
 
-messageReceivedFromAnotherPersonDecoder : Decoder MessageReceivedFromAnotherPerson
-messageReceivedFromAnotherPersonDecoder =
-    Json.Decode.map3 MessageReceivedFromAnotherPerson fileReadyToBeDownloadedDecoder fromDecoder textDecoder
+instructionToDownloadAFileDecoder : Decoder InstructionToDownloadAFile
+instructionToDownloadAFileDecoder =
+    Json.Decode.map2 InstructionToDownloadAFile fileToBeDownloadedDecoder fromDecoder
 
 
 overallUploadProgressDecoder : Decoder Float
@@ -564,11 +559,6 @@ overallUploadProgressDecoder =
 receiversUserNameDecoder : Decoder String
 receiversUserNameDecoder =
     Json.Decode.field "receiversUserName" Json.Decode.string
-
-
-textDecoder : Decoder String
-textDecoder =
-    Json.Decode.field "text" Json.Decode.string
 
 
 totalBytesTransferredDecoder : Decoder Int
