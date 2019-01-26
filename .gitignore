@@ -14,3 +14,4 @@ build.js.map
 firebase-debug.log
 npm-debug.log
 *.cache
+.firebase/hosting.*.cache

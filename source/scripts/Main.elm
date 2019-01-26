@@ -24,8 +24,8 @@ main =
 type alias DetailsOfFilesUploadTransaction =
     { inputsId : String
     , ipAddress : String
-    , receiversUserName : String
-    , sendersUserName : String
+    , receiversUserId : String
+    , sendersUserId : String
     }
 
 
@@ -37,7 +37,7 @@ type alias FileToBeDownloaded =
 
 type alias FilesUploadProgress =
     { overallUploadProgress : Float
-    , receiversUserName : String
+    , receiversUserId : String
     }
 
 
@@ -54,7 +54,7 @@ type alias IPAddress =
 type Model
     = Loading
     | Connected IPAddress
-    | Ready IPAddress OtherUsers ThisUsersName
+    | Ready IPAddress OtherUsers ThisUser
     | Disconnected
 
 
@@ -62,12 +62,13 @@ type alias OtherUsers =
     List User
 
 
-type alias ThisUsersName =
-    String
+type alias ThisUser =
+    User
 
 
 type alias User =
     { filesToBeDownloaded : List FileToBeDownloaded
+    , id : String
     , messageToDisplay : String
     , name : String
     }
@@ -83,7 +84,7 @@ init _ =
 
 
 type Msg
-    = AUserCameIn String
+    = AUserCameIn User
     | AUserLeft String
     | FileChosen String
     | FilesUploadProgressReceived FilesUploadProgress
@@ -91,21 +92,27 @@ type Msg
     | NoOp
     | ReceivedADownloadFileInstruction InstructionToDownloadAFile
     | UserHasGoneOffline
-    | UsersNameReceived String
+    | UserReceived User
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        AUserCameIn userName ->
+        AUserCameIn newUser ->
             let
                 newModel =
                     case model of
-                        Ready ipAddress otherUsers thisUsersName ->
-                            if userName /= thisUsersName then
-                                Ready ipAddress (((User [] "" userName) :: otherUsers) |> List.sortBy .name) thisUsersName
-                            else
-                                model
+                        Ready ipAddress otherUsers thisUser ->
+                            let
+                                newSortedOtherUsers =
+                                    newUser
+                                        :: otherUsers
+                                        |> List.sortBy .name
+                            in
+                                if newUser.name /= thisUser.name then
+                                    Ready ipAddress newSortedOtherUsers thisUser
+                                else
+                                    model
 
                         _ ->
                             model
@@ -116,8 +123,8 @@ update msg model =
             let
                 newModel =
                     case model of
-                        Ready ipAddress otherUsers thisUsersName ->
-                            Ready ipAddress (List.filter (\user -> user.name /= userName) otherUsers) thisUsersName
+                        Ready ipAddress otherUsers thisUser ->
+                            Ready ipAddress (List.filter (\user -> user.name /= userName) otherUsers) thisUser
 
                         _ ->
                             model
@@ -126,19 +133,19 @@ update msg model =
 
         FileChosen inputsId ->
             let
-                receiversUserName =
-                    String.replace "_" " " (String.replace "fileChooser_" "" inputsId)
+                receiversUserId =
+                    String.replace "fileChooser_" "" inputsId
 
                 commandToInvoke =
                     case model of
-                        Ready ipAddress otherUsers thisUsersName ->
+                        Ready ipAddress otherUsers thisUser ->
                             let
                                 detailsOfFilesUploadTransaction : DetailsOfFilesUploadTransaction
                                 detailsOfFilesUploadTransaction =
                                     { inputsId = inputsId
                                     , ipAddress = ipAddress
-                                    , receiversUserName = receiversUserName
-                                    , sendersUserName = thisUsersName
+                                    , receiversUserId = receiversUserId
+                                    , sendersUserId = thisUser.id
                                     }
                             in
                                 filesChosenToJS detailsOfFilesUploadTransaction
@@ -152,11 +159,11 @@ update msg model =
             let
                 newModel =
                     case model of
-                        Ready ipAddress otherUsers thisUsersName ->
+                        Ready ipAddress otherUsers thisUser ->
                             let
-                                updateMessageToDisplayIfUserNamesMatch : User -> User
-                                updateMessageToDisplayIfUserNamesMatch user =
-                                    if user.name == filesUploadProgress.receiversUserName then
+                                updateMessageToDisplayIfUserIdsMatch : User -> User
+                                updateMessageToDisplayIfUserIdsMatch user =
+                                    if user.id == filesUploadProgress.receiversUserId then
                                         let
                                             newMessageToDisplay =
                                                 case (Basics.round filesUploadProgress.overallUploadProgress) of
@@ -171,9 +178,9 @@ update msg model =
                                         user
 
                                 newOtherUsers =
-                                    List.map updateMessageToDisplayIfUserNamesMatch otherUsers
+                                    List.map updateMessageToDisplayIfUserIdsMatch otherUsers
                             in
-                                Ready ipAddress newOtherUsers thisUsersName
+                                Ready ipAddress newOtherUsers thisUser
 
                         _ ->
                             model
@@ -189,24 +196,24 @@ update msg model =
         ReceivedADownloadFileInstruction receivedMessage ->
             --  Add to the list of files that can be downloaded from a user
             let
-                updateUsersFilesToBeDownloadedIfTheUserNameMatches : String -> FileToBeDownloaded -> User -> User
-                updateUsersFilesToBeDownloadedIfTheUserNameMatches userNameToMatch fileToBeDownloaded user =
-                    if user.name == userNameToMatch then
+                updateUsersFilesToBeDownloadedIfTheUserIdMatches : String -> FileToBeDownloaded -> User -> User
+                updateUsersFilesToBeDownloadedIfTheUserIdMatches userNameToMatch fileToBeDownloaded user =
+                    if user.id == userNameToMatch then
                         { user | filesToBeDownloaded = fileToBeDownloaded :: user.filesToBeDownloaded }
                     else
                         user
 
                 newModel =
                     case model of
-                        Ready ipAddress otherUsers thisUsersName ->
+                        Ready ipAddress otherUsers thisUser ->
                             let
                                 curriedUpdateUsersFilesToBeDownloadedIfTheUserNameMatches =
-                                    updateUsersFilesToBeDownloadedIfTheUserNameMatches receivedMessage.from receivedMessage.fileToBeDownloaded
+                                    updateUsersFilesToBeDownloadedIfTheUserIdMatches receivedMessage.from receivedMessage.fileToBeDownloaded
 
                                 updatedOtherUsers =
                                     List.map curriedUpdateUsersFilesToBeDownloadedIfTheUserNameMatches otherUsers
                             in
-                                Ready ipAddress updatedOtherUsers thisUsersName
+                                Ready ipAddress updatedOtherUsers thisUser
 
                         _ ->
                             model
@@ -216,12 +223,12 @@ update msg model =
         UserHasGoneOffline ->
             ( Disconnected, Cmd.none )
 
-        UsersNameReceived newThisUsersName ->
+        UserReceived newThisUser ->
             let
                 newModel =
                     case model of
                         Connected ipAddress ->
-                            Ready ipAddress [] newThisUsersName
+                            Ready ipAddress [] newThisUser
 
                         _ ->
                             model
@@ -308,9 +315,9 @@ viewOtherUser : User -> Html Msg
 viewOtherUser user =
     let
         idOfTheInput =
-            "fileChooser_" ++ (String.replace " " "_" user.name)
+            "fileChooser_" ++ user.id
     in
-        div [ class "otherUser", id user.name ]
+        div [ class "otherUser" ]
             [ div
                 [ class "innerBox" ]
                 [ div
@@ -359,9 +366,9 @@ viewSimpleMessage messageToDisplay =
 viewUsersName : Model -> List (Html Msg)
 viewUsersName model =
     case model of
-        Ready ipAddress otherUsers thisUsersName ->
+        Ready ipAddress otherUsers thisUser ->
             [ div [ class "label", id "usersNameLabel" ] [ text "YOUR HANDLE IS" ]
-            , div [ id "usersName" ] [ text (String.toUpper thisUsersName) ]
+            , div [ id "usersName" ] [ text (String.toUpper thisUser.name) ]
             ]
 
         _ ->
@@ -381,6 +388,20 @@ decodeFilesUploadProgress receivedValue =
         case resultOfDecoding of
             Ok filesUploadProgress ->
                 FilesUploadProgressReceived filesUploadProgress
+
+            Err error ->
+                NoOp
+
+
+decodeIdOfUserWhoLeft : Json.Decode.Value -> Msg
+decodeIdOfUserWhoLeft receivedValue =
+    let
+        resultOfDecoding =
+            Json.Decode.decodeValue Json.Decode.string receivedValue
+    in
+        case resultOfDecoding of
+            Ok idOfTheOtherUser ->
+                AUserLeft idOfTheOtherUser
 
             Err error ->
                 NoOp
@@ -414,28 +435,18 @@ decodeIPAddress receivedValue =
                 NoOp
 
 
-decodeNameOfOtherUserWhoCameInOrLeft : (String -> Msg) -> Json.Decode.Value -> Msg
-decodeNameOfOtherUserWhoCameInOrLeft msg receivedValue =
+decodeUserWhoCameIn : Json.Decode.Value -> Msg
+decodeUserWhoCameIn receivedValue =
     let
         resultOfDecoding =
-            Json.Decode.decodeValue Json.Decode.string receivedValue
+            Json.Decode.decodeValue userDecoder receivedValue
     in
         case resultOfDecoding of
-            Ok nameOfOtherUser ->
-                msg nameOfOtherUser
+            Ok newUser ->
+                AUserCameIn newUser
 
             Err error ->
                 NoOp
-
-
-decodeNameOfOtherUserWhoCameIn : Json.Decode.Value -> Msg
-decodeNameOfOtherUserWhoCameIn receivedValue =
-    decodeNameOfOtherUserWhoCameInOrLeft AUserCameIn receivedValue
-
-
-decodeNameOfOtherUserWhoLeft : Json.Decode.Value -> Msg
-decodeNameOfOtherUserWhoLeft receivedValue =
-    decodeNameOfOtherUserWhoCameInOrLeft AUserLeft receivedValue
 
 
 decodeUserHasGoneOffline : Json.Decode.Value -> Msg
@@ -455,15 +466,15 @@ decodeUserHasGoneOffline receivedValue =
                 NoOp
 
 
-decodeUserNameFromJS : Json.Decode.Value -> Msg
-decodeUserNameFromJS receivedValue =
+decodeUserFromJS : Json.Decode.Value -> Msg
+decodeUserFromJS receivedValue =
     let
         resultOfDecoding =
-            Json.Decode.decodeValue Json.Decode.string receivedValue
+            Json.Decode.decodeValue userDecoder receivedValue
     in
         case resultOfDecoding of
-            Ok newUsersName ->
-                UsersNameReceived newUsersName
+            Ok newUser ->
+                UserReceived newUser
 
             Err error ->
                 NoOp
@@ -487,7 +498,7 @@ port otherUserLeftFromJS : (Json.Decode.Value -> msg) -> Sub msg
 port userHasGoneOfflineFromJS : (Json.Decode.Value -> msg) -> Sub msg
 
 
-port userNameFromJS : (Json.Decode.Value -> msg) -> Sub msg
+port userFromJS : (Json.Decode.Value -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -496,10 +507,10 @@ subscriptions model =
         [ filesUploadProgressFromJS decodeFilesUploadProgress
         , instructionToDownloadAFileReceivedFromJS decodeInstructionToDownloadAFile
         , ipAddressFromJS decodeIPAddress
-        , otherUserCameInFromJS decodeNameOfOtherUserWhoCameIn
-        , otherUserLeftFromJS decodeNameOfOtherUserWhoLeft
+        , otherUserCameInFromJS decodeUserWhoCameIn
+        , otherUserLeftFromJS decodeIdOfUserWhoLeft
         , userHasGoneOfflineFromJS decodeUserHasGoneOffline
-        , userNameFromJS decodeUserNameFromJS
+        , userFromJS decodeUserFromJS
         ]
 
 
@@ -531,14 +542,24 @@ fileToBeDownloadedDecoder =
     Json.Decode.map2 FileToBeDownloaded downloadURLDecoder fileNameDecoder
 
 
+filesToBeDownloadedDecoder : Decoder (List FileToBeDownloaded)
+filesToBeDownloadedDecoder =
+    Json.Decode.field "filesToBeDownloaded" (Json.Decode.list fileToBeDownloadedDecoder)
+
+
 filesUploadProgressDecoder : Decoder FilesUploadProgress
 filesUploadProgressDecoder =
-    Json.Decode.map2 FilesUploadProgress overallUploadProgressDecoder receiversUserNameDecoder
+    Json.Decode.map2 FilesUploadProgress overallUploadProgressDecoder receiversUserIdDecoder
 
 
 fromDecoder : Decoder String
 fromDecoder =
     Json.Decode.field "from" Json.Decode.string
+
+
+idDecoder : Decoder String
+idDecoder =
+    Json.Decode.field "id" Json.Decode.string
 
 
 inputsTargetIdDecoder : Decoder String
@@ -551,14 +572,24 @@ instructionToDownloadAFileDecoder =
     Json.Decode.map2 InstructionToDownloadAFile fileToBeDownloadedDecoder fromDecoder
 
 
+messageToDisplayDecoder : Decoder String
+messageToDisplayDecoder =
+    Json.Decode.field "messageToDisplay" Json.Decode.string
+
+
+nameDecoder : Decoder String
+nameDecoder =
+    Json.Decode.field "name" Json.Decode.string
+
+
 overallUploadProgressDecoder : Decoder Float
 overallUploadProgressDecoder =
     Json.Decode.field "overallUploadProgress" Json.Decode.float
 
 
-receiversUserNameDecoder : Decoder String
-receiversUserNameDecoder =
-    Json.Decode.field "receiversUserName" Json.Decode.string
+receiversUserIdDecoder : Decoder String
+receiversUserIdDecoder =
+    Json.Decode.field "receiversUserId" Json.Decode.string
 
 
 totalBytesTransferredDecoder : Decoder Int
@@ -571,11 +602,6 @@ totalBytesDecoder =
     Json.Decode.field "totalBytes" Json.Decode.int
 
 
-userNameDecoder : Decoder String
-userNameDecoder =
-    Json.Decode.string
-
-
-usersNamesDecoder : Decoder (List String)
-usersNamesDecoder =
-    Json.Decode.list userNameDecoder
+userDecoder : Decoder User
+userDecoder =
+    Json.Decode.map4 User filesToBeDownloadedDecoder idDecoder messageToDisplayDecoder nameDecoder

@@ -10,12 +10,12 @@ main.ports.filesChosenToJS.subscribe(transferFiles)
 let connectionRef = firebase.database().ref('.info/connected')
 connectionRef.on('value', (snapshot) => {
   if (snapshot.val() === true) {
-    console.log('Came into setup')
-    // setUp()
-    firebase.auth().signInAnonymously().then((e) => { console.log('signed in', e) })
-    setUp()
+    firebase.auth()
+      .signInAnonymously()
+      .then(() => {
+        setUp()
+      })
   } else {
-    //  We will have to terminate all incomplete transfers and shut the app down
     main.ports.userHasGoneOfflineFromJS.send(true)
   }
 })
@@ -37,7 +37,7 @@ function getAName () {
   return randomAdjective + ' ' + randomBird
 }
 
-function getANewAndUniqueName (listOfUsersNames) {
+function getANewAndUniqueUserName (listOfUsersNames) {
   //  This is where we think up a new name for the current user
   let newName = getAName()
 
@@ -55,11 +55,11 @@ function getIPAddress (e) {
     })
 }
 
-function getOtherUsersNames (ipAddress) {
+function getOtherUsersNames (ipAddressWithUnderscoresInsteadOfDots) {
   //  This is where we get the names of the other users under this IP Address
   return firebase
     .database()
-    .ref(ipAddress.replace(/\./gi, '_') + '/users')
+    .ref(ipAddressWithUnderscoresInsteadOfDots + '/users')
     .once('value')
     .then((snapshot) => {
       let usersNames = []
@@ -68,6 +68,9 @@ function getOtherUsersNames (ipAddress) {
       })
 
       return usersNames
+    })
+    .catch((error) => {
+      console.log(error)
     })
 }
 
@@ -80,12 +83,12 @@ function newMessageReceived (data) {
   //  Now, get the download URL from firebase and then send the rest of the data to Elm
   let instructionToDownloadAFile = {}
   instructionToDownloadAFile.fileName = message.fileName
-  instructionToDownloadAFile.from = message.sendersUserName
+  instructionToDownloadAFile.from = message.sendersUserId
 
   //  Now, retrieve the downloadURL
   return firebase
     .storage()
-    .ref(message.ipAddressWithUnderscoresInsteadOfDots + '/' + message.receiversUserName + '/' + message.sendersUserName + '/' + message.fileName)
+    .ref(message.ipAddress + '/' + message.receiversUserId + '/' + message.sendersUserId + '/' + message.fileName)
     .getDownloadURL()
     .then((downloadURL) => {
       instructionToDownloadAFile.downloadURL = downloadURL
@@ -97,9 +100,13 @@ function newMessageReceived (data) {
     })
 }
 
-function registerTheUser (ipAddress, newAndUniqueName) {
-  console.log('registerTheUser')
-  return firebase.database().ref(ipAddress.replace(/\./gi, '_') + '/users/' + newAndUniqueName).set(true)
+function registerTheUser (ipAddressWithUnderscoresInsteadOfDots, newAndUniqueUserName) {
+  return firebase.database()
+    .ref(ipAddressWithUnderscoresInsteadOfDots + '/users')
+    .push({ ipAddress: ipAddressWithUnderscoresInsteadOfDots, name: newAndUniqueUserName })
+    .then((u) => {
+      return u.key
+    })
 }
 
 function setUp () {
@@ -111,23 +118,30 @@ function setUp () {
   getIPAddress()
     .then((ipAddress) => {
       main.ports.ipAddressFromJS.send(ipAddress)
-      getOtherUsersNames(ipAddress)
+
+      let ipAddressWithUnderscoresInsteadOfDots = ipAddress.replace(/\./gi, '_')
+      getOtherUsersNames(ipAddressWithUnderscoresInsteadOfDots)
         .then((listOfOtherUsersNames) => {
-          let newAndUniqueUserName = getANewAndUniqueName(listOfOtherUsersNames)
+          let newAndUniqueUserName = getANewAndUniqueUserName(listOfOtherUsersNames)
           if (newAndUniqueUserName) {
-            registerTheUser(ipAddress, newAndUniqueUserName)
-              .then(() => {
-                main.ports.userNameFromJS.send(newAndUniqueUserName)
+            registerTheUser(ipAddressWithUnderscoresInsteadOfDots, newAndUniqueUserName)
+              .then((userID) => {
+                let user =
+                  { filesToBeDownloaded: [],
+                    id: userID,
+                    messageToDisplay: '',
+                    name: newAndUniqueUserName
+                  }
+                main.ports.userFromJS.send(user)
 
                 //  Make sure that the data under this user is deleted when the user disconnects
-                let escapedIPAddress = ipAddress.replace(/\./gi, '_')
-                firebase.database().ref(escapedIPAddress + '/users/' + newAndUniqueUserName).onDisconnect().remove()
-                firebase.database().ref(escapedIPAddress + '/messages/' + newAndUniqueUserName).onDisconnect().remove()
+                firebase.database().ref(ipAddressWithUnderscoresInsteadOfDots + '/users/' + user.id).onDisconnect().remove()
+                firebase.database().ref(ipAddressWithUnderscoresInsteadOfDots + '/messages/' + user.id).onDisconnect().remove()
 
                 //  Now, make sure that we are updated about any user that comes or goes
-                firebase.database().ref(escapedIPAddress + '/users').on('child_added', userAdded)
-                firebase.database().ref(escapedIPAddress + '/users').on('child_removed', userRemoved)
-                firebase.database().ref(escapedIPAddress + '/messages/' + newAndUniqueUserName).on('child_added', newMessageReceived)
+                firebase.database().ref(ipAddressWithUnderscoresInsteadOfDots + '/users').on('child_added', userAdded)
+                firebase.database().ref(ipAddressWithUnderscoresInsteadOfDots + '/users').on('child_removed', userRemoved)
+                firebase.database().ref(ipAddressWithUnderscoresInsteadOfDots + '/messages').orderByChild('receiversUserId').equalTo(user.id).on('child_added', newMessageReceived)
               })
           }
         })
@@ -145,6 +159,7 @@ function transferFiles (detailsOfFilesUploadTransaction) {
         Report the progress to the user
       Once the upload has completed, let the other side know what has been uploaded
   */
+  const ipAddressWithUnderscoresInsteadOfDots = detailsOfFilesUploadTransaction.ipAddress.replace(/\./gi, '_')
   const correspondingInput = document.getElementById(detailsOfFilesUploadTransaction.inputsId)
   const numberOfFilesToUpload = correspondingInput.files.length
   let overallUploadProgress = []
@@ -153,9 +168,9 @@ function transferFiles (detailsOfFilesUploadTransaction) {
 
     //  Start the upload
     let storageRef = firebase.storage().ref()
-      .child(detailsOfFilesUploadTransaction.ipAddress.replace(/\./gi, '_'))
-      .child(detailsOfFilesUploadTransaction.receiversUserName)
-      .child(detailsOfFilesUploadTransaction.sendersUserName)
+      .child(ipAddressWithUnderscoresInsteadOfDots)
+      .child(detailsOfFilesUploadTransaction.receiversUserId)
+      .child(detailsOfFilesUploadTransaction.sendersUserId)
       .child(fileToBeUploaded.name)
     let metadata = { contentType: 'application/octet-stream' }
     let uploadTask = storageRef.put(fileToBeUploaded, metadata)
@@ -173,7 +188,7 @@ function transferFiles (detailsOfFilesUploadTransaction) {
           overallUploadProgress[fileNumber] = progress
           let dataToBeSentToElm =
             { overallUploadProgress: 100 * overallUploadProgress.reduce((accumulator, currentValue) => { return accumulator + currentValue }) / (numberOfFilesToUpload * 100),
-              receiversUserName: detailsOfFilesUploadTransaction.receiversUserName
+              receiversUserId: detailsOfFilesUploadTransaction.receiversUserId
             }
           main.ports.filesUploadProgressFromJS.send(dataToBeSentToElm)
           break
@@ -187,13 +202,13 @@ function transferFiles (detailsOfFilesUploadTransaction) {
     , () => {
       let messageToSend = {
         fileName: fileToBeUploaded.name,
-        ipAddressWithUnderscoresInsteadOfDots: detailsOfFilesUploadTransaction.ipAddress.replace(/\./gi, '_'),
-        receiversUserName: detailsOfFilesUploadTransaction.receiversUserName,
-        sendersUserName: detailsOfFilesUploadTransaction.sendersUserName,
+        ipAddress: ipAddressWithUnderscoresInsteadOfDots,
+        receiversUserId: detailsOfFilesUploadTransaction.receiversUserId,
+        sendersUserId: detailsOfFilesUploadTransaction.sendersUserId,
         text: 'File is ready to be downloaded'
       }
       firebase.database()
-        .ref(detailsOfFilesUploadTransaction.ipAddress.replace(/\./gi, '_') + '/messages/' + detailsOfFilesUploadTransaction.receiversUserName)
+        .ref(ipAddressWithUnderscoresInsteadOfDots + '/messages')
         .push(messageToSend)
     })
   }
@@ -202,7 +217,14 @@ function transferFiles (detailsOfFilesUploadTransaction) {
 function userAdded (data) {
   //  A user has been added
   //  Let Elm know
-  main.ports.otherUserCameInFromJS.send(data.key)
+  let newUser =
+    { filesToBeDownloaded: [],
+      id: data.key,
+      messageToDisplay: '',
+      name: data.val().name
+    }
+
+  main.ports.otherUserCameInFromJS.send(newUser)
 }
 
 function userRemoved (data) {
