@@ -136,8 +136,7 @@ function setUp () {
 
                 //  Make sure that the data under this user is deleted when the user disconnects
                 firebase.database().ref(ipAddressWithUnderscoresInsteadOfDots + '/users/' + user.id).onDisconnect().remove()
-                firebase.database().ref(ipAddressWithUnderscoresInsteadOfDots + '/messages/' + user.id).onDisconnect().remove()
-
+                
                 //  Now, make sure that we are updated about any user that comes or goes
                 firebase.database().ref(ipAddressWithUnderscoresInsteadOfDots + '/users').on('child_added', userAdded)
                 firebase.database().ref(ipAddressWithUnderscoresInsteadOfDots + '/users').on('child_removed', userRemoved)
